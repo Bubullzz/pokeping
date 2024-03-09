@@ -1,6 +1,13 @@
 from enum import Enum, auto
 from typing import Set, List
 
+class Category(Enum):
+    LVL4_RAID = auto(),
+    LVL5_RAID = auto(),
+    LVL6_RAID = auto(),
+    OTHER = auto()
+
+"""
 rawCats = []
 class RawCategories:
     name: str
@@ -62,3 +69,4 @@ class Category:
     monster: Set[Monster]
 
 level_4_category = 
+"""
