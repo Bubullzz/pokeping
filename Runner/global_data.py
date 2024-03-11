@@ -1,4 +1,5 @@
 from typing import Dict
+from DataClases import player, server
 
-players: Dict = {}
-servers: Dict = {}
+players: Dict[int, player.Player] = {}
+servers: Dict[int, server.Server] = {}
