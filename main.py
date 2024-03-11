@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+
 class MyBot(commands.Bot):
     def __init__(self):
         super().__init__(
@@ -14,4 +15,4 @@ class MyBot(commands.Bot):
         print("ready")
 
 bot = MyBot()
-bot.run("MTIxMDU5OTc3OTU1NDU1ODA2NA.GxVQb4.NHyAo_58h09yV1OXkC9z49KaQDY0UBQc3Qi3dk")
+bot.run("MTIxMDU5OTc3OTU1NDU1ODA2NA.G69h6c.wf-qMC3kcugCuX2bRHm_pnZ86wRFVv2I7Dgbgo")

@@ -5,12 +5,11 @@ import finders.data
 from finders import data
 
 class Player:
-    user: discord.User
-    enable_categories: Dict[int, bool]
-    bw_per_cat: Dict[int, Set[int]]  # black or white list
-
     def __init__(self, user: discord.User, all: bool):
         self.user = user
+        self.enable_categories: Dict[int, bool] = {}
+        self.bw_per_cat: Dict[int, Set[int]] = {}
+
         for i in range(len(data.category_names)):
             self.enable_categories[i] = all
             self.bw_per_cat[i] = set()
@@ -42,7 +41,10 @@ class Player:
             return changed
 
         except ValueError:
-            pkmn_id = finders.data.name_to_id(argument)
+            if argument not in data.name_to_id:
+                print(f"Unexpected argument: {argument}")
+                return False
+            pkmn_id = finders.data.name_to_id[argument]
             pkmn_cat = finders.data.get_category(pkmn_id)
             if self.enable_categories.get(pkmn_cat) == enable:
                 if pkmn_id in self.bw_per_cat[pkmn_cat]:
