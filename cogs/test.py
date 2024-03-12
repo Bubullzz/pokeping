@@ -1,4 +1,4 @@
-import typing
+from typing import Set, List
 from Runner import global_data
 from DataClases import player, server
 from finders import data
@@ -21,24 +21,43 @@ class test(commands.Cog):
         pkmn_id = data.get_id(pkmn_name)
         if interaction.guild.id in global_data.servers:
             big_ass_string = ''.join([p.user.mention for p in global_data.servers[interaction.guild.id].players.values() if
-                                      p.interested(pkmn_id)])
+                                      p.interested(pkmn_id, interaction)])
             await interaction.response.send_message(f"A wild {pkmn_name} has spawned ! {big_ass_string}")
         else:
             await interaction.response.send_message(f"Server not registred !")
 
+    @app_commands.command(name="disable_channel", description="stop getting pings from this channel")
+    async def disable_chan(selfself, interaction: discord.Interaction) -> None:
+        try:
+            serv = global_data.servers[interaction.guild.id]
+            serv.players[interaction.user.id].guild_to_chans[serv.guild.id].remove(interaction.channel)
+            await interaction.response.send_message(f"You wont get pinged in this channel anymore !")
+            return
+        except:
+            await interaction.response.send_message(f"Looks like you are already not getting any ping from this channel >:(")
+
 
     async def xable(self, interaction: discord, argument: str, enable: bool) -> None:
+        pretty_arg = argument
         argument = argument.lower()
-        if interaction.guild.id not in global_data.servers:
+        if interaction.guild.id not in global_data.servers:  # Check if server not already exists
             global_data.servers[interaction.guild.id] = server.Server(interaction.guild)
-        if interaction.user.id not in global_data.servers[interaction.guild.id].players:
-            global_data.servers[interaction.guild.id].players[interaction.user.id] = player.Player(interaction.user,
-                                                                                                   not enable)
+        serv = global_data.servers[interaction.guild.id]
 
-        if global_data.servers[interaction.guild.id].players[interaction.user.id].set_preference(argument, enable):
-            await interaction.response.send_message(f"Changed your preference for {argument} !")
+        if interaction.user.id not in serv.players:  # Check if player exists in server
+            serv.players[interaction.user.id] = player.Player(interaction.user, not enable)
+
+        play = serv.players[interaction.user.id]
+        if interaction.guild.id not in play.guild_to_chans.keys():  # Check if player know this server
+            play.guild_to_chans[serv.guild.id] = set()
+
+        if interaction.channel not in play.guild_to_chans[serv.guild.id]:  # Add current channel if needed
+            play.guild_to_chans[serv.guild.id].add(interaction.channel)
+
+        if play.set_preference(argument, enable):
+            await interaction.response.send_message(f"Changed your preference for {pretty_arg} !")
         else:
-            await interaction.response.send_message(f"Your preference for {argument} was already set that way !")
+            await interaction.response.send_message(f"Your preference for {pretty_arg} was already set that way !")
 
     @app_commands.command(name="enable", description="enables pings for a pokemon or category")
     async def enable(self, interaction: discord.Interaction, target: str) -> None:
@@ -49,7 +68,7 @@ class test(commands.Cog):
         await self.xable(interaction, target, False)
 
     @report.autocomplete("pkmn_name")
-    async def report_autocompletion(self, interaction: discord, current: str) -> typing.List[
+    async def report_autocompletion(self, interaction: discord, current: str) -> List[
         app_commands.Choice[str]]:
         ret = []
         i = 0
@@ -62,7 +81,7 @@ class test(commands.Cog):
         return ret
 
     @enable.autocomplete("target")
-    async def report_autocompletion(self, interaction: discord, current: str) -> typing.List[
+    async def report_autocompletion(self, interaction: discord, current: str) -> List[
         app_commands.Choice[str]]:
         ret = []
         i = 0
@@ -75,7 +94,7 @@ class test(commands.Cog):
         return ret
 
     @disable.autocomplete("target")
-    async def report_autocompletion(self, interaction: discord, current: str) -> typing.List[
+    async def report_autocompletion(self, interaction: discord, current: str) -> List[
         app_commands.Choice[str]]:
         ret = []
         i = 0

@@ -7,6 +7,7 @@ class MyBot(commands.Bot):
         super().__init__(
             command_prefix='/',
             intents=discord.Intents.default())
+
     async def setup_hook(self):
         await self.load_extension(f"cogs.test")
         await bot.tree.sync()
@@ -14,5 +15,7 @@ class MyBot(commands.Bot):
     async def on_ready(self):
         print("ready")
 
+
 bot = MyBot()
-bot.run("MTIxMDU5OTc3OTU1NDU1ODA2NA.GYQIRK.ErkDZTcnBB-bo0c5KPDQcEyWe_nxRwFFIDatrg")
+
+bot.run("MTIxMDU5OTc3OTU1NDU1ODA2NA.Gr_zq_.ilHiXTS46bAOWZ1vP1vc1UCv4HEpATFu3TyrBw")

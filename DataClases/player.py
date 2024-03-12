@@ -1,6 +1,5 @@
 import discord
 from typing import Dict, Set
-
 import finders.data
 from finders import data
 
@@ -9,13 +8,17 @@ class Player:
         self.user = user
         self.enable_categories: Dict[int, bool] = {}
         self.bw_per_cat: Dict[int, Set[int]] = {}
+        self.guild_to_chans: Dict[int, Set[discord.TextChannel]] = {}
 
         for i in range(len(data.category_names)):
             self.enable_categories[i] = all
             self.bw_per_cat[i] = set()
 
-    def interested(self, pkmn_id: int) -> bool:
+    def interested(self, pkmn_id: int, interaction: discord.Interaction) -> bool:
         category = data.get_category(pkmn_id)
+
+        if interaction.channel not in self.guild_to_chans[interaction.guild.id]:
+            return False
         if self.enable_categories.get(category):
             return pkmn_id not in self.bw_per_cat.get(category)
         else:
