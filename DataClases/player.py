@@ -41,12 +41,12 @@ class Player:
             return changed
 
         except ValueError:
-            if argument not in data.name_to_id:
+            if argument not in data.lower_to_id:
                 print(f"Unexpected argument: {argument}")
                 return False
-            pkmn_id = finders.data.name_to_id[argument]
+            pkmn_id = finders.data.lower_to_id[argument]
             pkmn_cat = finders.data.get_category(pkmn_id)
-            if self.enable_categories.get(pkmn_cat) == enable:
+            if self.enable_categories.get(pkmn_cat) != enable:
                 if pkmn_id in self.bw_per_cat[pkmn_cat]:
                     return False
                 else:

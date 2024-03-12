@@ -17,6 +17,7 @@ class test(commands.Cog):
 
     @app_commands.command(name="report", description="reports a raid")
     async def report(self, interaction: discord.Interaction, pkmn_name: str) -> None:
+        pkmn_name = pkmn_name.lower()
         pkmn_id = data.get_id(pkmn_name)
         if interaction.guild.id in global_data.servers:
             big_ass_string = ''.join([p.user.mention for p in global_data.servers[interaction.guild.id].players.values() if
@@ -27,6 +28,7 @@ class test(commands.Cog):
 
 
     async def xable(self, interaction: discord, argument: str, enable: bool) -> None:
+        argument = argument.lower()
         if interaction.guild.id not in global_data.servers:
             global_data.servers[interaction.guild.id] = server.Server(interaction.guild)
         if interaction.user.id not in global_data.servers[interaction.guild.id].players:
@@ -39,27 +41,12 @@ class test(commands.Cog):
             await interaction.response.send_message(f"Your preference for {argument} was already set that way !")
 
     @app_commands.command(name="enable", description="enables pings for a pokemon or category")
-    async def enable(self, interaction: discord.Interaction, pkmn_name: str) -> None:
-        await self.xable(interaction, pkmn_name, True)
+    async def enable(self, interaction: discord.Interaction, target: str) -> None:
+        await self.xable(interaction, target, True)
 
     @app_commands.command(name="disable", description="disables pings for a pokemon or category")
-    async def disable(self, interaction: discord.Interaction, pkmn_name: str) -> None:
-        await self.xable(interaction, pkmn_name, False)
-
-    @app_commands.command()
-    async def atoi(self, interaction: discord.Interaction, item: str):
-        await interaction.response.send_message(f"your number + {item}")
-
-    @atoi.autocomplete("item")
-    async def atoi_autocompletion(self, interaction: discord.Interaction, current: str) -> typing.List[
-        app_commands.Choice[str]]:
-        data = []
-        for n in ["M_GENGAR",
-                  "M_GARDEVOIR",
-                  "M_CHARIZARD_X"]:
-            if current.lower() in n:
-                data.append(app_commands.Choice(name=n, value=n))
-        return data
+    async def disable(self, interaction: discord.Interaction, target: str) -> None:
+        await self.xable(interaction, target, False)
 
     @report.autocomplete("pkmn_name")
     async def report_autocompletion(self, interaction: discord, current: str) -> typing.List[
@@ -67,6 +54,32 @@ class test(commands.Cog):
         ret = []
         i = 0
         for name in data.pkmn_names:
+            if current.lower() in name.lower():
+                ret.append(app_commands.Choice(name=name, value=name))
+                i += 1
+                if i == 24:
+                    return ret
+        return ret
+
+    @enable.autocomplete("target")
+    async def report_autocompletion(self, interaction: discord, current: str) -> typing.List[
+        app_commands.Choice[str]]:
+        ret = []
+        i = 0
+        for name in data.xable_list:
+            if current.lower() in name.lower():
+                ret.append(app_commands.Choice(name=name, value=name))
+                i += 1
+                if i == 24:
+                    return ret
+        return ret
+
+    @disable.autocomplete("target")
+    async def report_autocompletion(self, interaction: discord, current: str) -> typing.List[
+        app_commands.Choice[str]]:
+        ret = []
+        i = 0
+        for name in data.xable_list:
             if current.lower() in name.lower():
                 ret.append(app_commands.Choice(name=name, value=name))
                 i += 1

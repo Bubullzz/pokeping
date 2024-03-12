@@ -19,7 +19,6 @@ name_to_id: Dict[str, int] = {}
 
 for category, pokemons in pokemon_data.items():
     category_range = category_ranges.get(category)
-    name_to_id.update({pokemon.lower(): i for i, pokemon in zip(category_range, pokemons)})
+    name_to_id.update({pokemon: i for i, pokemon in zip(category_range, pokemons)})
 
-id_to_name: Dict[int, str] = {i: pokemon for pokemon, i in name_to_id.items()}
 

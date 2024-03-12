@@ -15,4 +15,4 @@ class MyBot(commands.Bot):
         print("ready")
 
 bot = MyBot()
-bot.run("MTIxMDU5OTc3OTU1NDU1ODA2NA.G69h6c.wf-qMC3kcugCuX2bRHm_pnZ86wRFVv2I7Dgbgo")
+bot.run("MTIxMDU5OTc3OTU1NDU1ODA2NA.GYQIRK.ErkDZTcnBB-bo0c5KPDQcEyWe_nxRwFFIDatrg")
