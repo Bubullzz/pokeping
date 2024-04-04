@@ -4,39 +4,39 @@ import finders.data
 from finders import data
 
 class Player:
-    def __init__(self, user: discord.User, all: bool):
-        self.user = user
+    def __init__(self, user_id: int, user_mention: str, all: bool):
+        self.user_id: int = user_id
+        self.mention: str = user_mention
         self.enable_categories: Dict[int, bool] = {}
         self.bw_per_cat: Dict[int, Set[int]] = {}
-        self.guild_to_chans: Dict[int, Set[discord.TextChannel]] = {}
+        self.guild_to_chans: Dict[int, Set[int]] = {}
 
         for i in range(len(data.category_names)):
             self.enable_categories[i] = all
             self.bw_per_cat[i] = set()
 
     def to_dict(self):
-        # Convert instance attributes to a dictionary
         return {
-            'user_id': self.user.id,
-            'enable_categories': self.enable_categories,
-            'bw_per_cat': {key: list(value) for key, value in self.bw_per_cat.items()},
-            'guild_to_chans': {key: [chan.id for chan in value] for key, value in self.guild_to_chans.items()}
+            "user_id": self.user_id,
+            "mention": self.mention,
+            "enable_categories": self.enable_categories,
+            "bw_per_cat": {str(cat): list(channels) for cat, channels in self.bw_per_cat.items()},
+            "guild_to_chans": {str(guild): list(channels) for guild, channels in self.guild_to_chans.items()}
         }
 
     @classmethod
-    def from_dict(cls, user, data):
-        # Create a new Player instance from a dictionary
-        player = cls(user)
-        player.enable_categories = data['enable_categories']
-        player.bw_per_cat = {key: set(value) for key, value in data['bw_per_cat'].items()}
-        player.guild_to_chans = {key: {discord.TextChannel(id=chan_id) for chan_id in value} for key, value in data['guild_to_chans'].items()}
+    def from_dict(cls, data):
+        player = cls(data['user_id'], data['mention'], False)  # Here, you might need additional data for initialization
+        player.mention = data['mention']
+        player.enable_categories = {int(k): v for k, v in data['enable_categories'].items()}
+        player.bw_per_cat = {int(cat): set(channels) for cat, channels in data['bw_per_cat'].items()}
+        player.guild_to_chans = {int(guild): set(channels) for guild, channels in data['guild_to_chans'].items()}
         return player
-
 
     def interested(self, pkmn_id: int, interaction: discord.Interaction) -> bool:
         category = data.get_category(pkmn_id)
 
-        if interaction.channel not in self.guild_to_chans[interaction.guild.id]:
+        if interaction.channel.id not in self.guild_to_chans[interaction.guild.id]:
             return False
         if self.enable_categories.get(category):
             return pkmn_id not in self.bw_per_cat.get(category)

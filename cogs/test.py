@@ -20,7 +20,7 @@ class test(commands.Cog):
         pkmn_name = pkmn_name.lower()
         pkmn_id = data.get_id(pkmn_name)
         if interaction.guild.id in global_data.servers:
-            big_ass_string = ''.join([p.user.mention for p in global_data.servers[interaction.guild.id].players.values() if
+            big_ass_string = ''.join([p.mention for p in global_data.servers[interaction.guild.id].players.values() if
                                       p.interested(pkmn_id, interaction)])
             await interaction.response.send_message(f"A wild {pkmn_name} has spawned ! {big_ass_string}")
         else:
@@ -30,29 +30,28 @@ class test(commands.Cog):
     async def disable_chan(selfself, interaction: discord.Interaction) -> None:
         try:
             serv = global_data.servers[interaction.guild.id]
-            serv.players[interaction.user.id].guild_to_chans[serv.guild.id].remove(interaction.channel)
+            serv.players[interaction.user.id].guild_to_chans[serv.guild_id].remove(interaction.channel.id)
             await interaction.response.send_message(f"You wont get pinged in this channel anymore !")
             return
         except:
             await interaction.response.send_message(f"Looks like you are already not getting any ping from this channel >:(")
 
-
     async def xable(self, interaction: discord, argument: str, enable: bool) -> None:
         pretty_arg = argument
         argument = argument.lower()
         if interaction.guild.id not in global_data.servers:  # Check if server not already exists
-            global_data.servers[interaction.guild.id] = server.Server(interaction.guild)
+            global_data.servers[interaction.guild.id] = server.Server(interaction.guild.id)
         serv = global_data.servers[interaction.guild.id]
 
         if interaction.user.id not in serv.players:  # Check if player exists in server
-            serv.players[interaction.user.id] = player.Player(interaction.user, not enable)
+            serv.players[interaction.user.id] = player.Player(interaction.user.id, interaction.user.mention, not enable)
 
         play = serv.players[interaction.user.id]
         if interaction.guild.id not in play.guild_to_chans.keys():  # Check if player know this server
-            play.guild_to_chans[serv.guild.id] = set()
+            play.guild_to_chans[serv.guild_id] = set()
 
-        if interaction.channel not in play.guild_to_chans[serv.guild.id]:  # Add current channel if needed
-            play.guild_to_chans[serv.guild.id].add(interaction.channel)
+        if interaction.channel not in play.guild_to_chans[serv.guild_id]:  # Add current channel if needed
+            play.guild_to_chans[serv.guild_id].add(interaction.channel.id)
 
         if play.set_preference(argument, enable):
             await interaction.response.send_message(f"Changed your preference for {pretty_arg} !")
@@ -83,23 +82,12 @@ class test(commands.Cog):
         return ret
 
     @enable.autocomplete("target")
-    async def report_autocompletion(self, interaction: discord, current: str) -> List[
-        app_commands.Choice[str]]:
-        ret = []
-        i = 0
-        for name in data.xable_list:
-            if current.lower() in name.lower():
-                ret.append(app_commands.Choice(name=name, value=name))
-                i += 1
-                if i == 24:
-                    return ret
-        if (current == "all"):
-            return [app_commands.Choice(name="all", value="all")]
-        return ret
-
     @disable.autocomplete("target")
     async def report_autocompletion(self, interaction: discord, current: str) -> List[
         app_commands.Choice[str]]:
+        if current == "":
+            return [app_commands.Choice(name=name, value=name) for name in
+                               ["all", "6-star", "5-star", "4-star", "Mega-Gardevoir", "Reshiram", "Primo-groudon"]]
         ret = []
         i = 0
         for name in data.xable_list:

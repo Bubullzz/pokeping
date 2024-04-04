@@ -1,28 +1,31 @@
 import discord
 from DataClases import player
-from Runner import global_data
 from typing import Dict
 
 
 class Server:
 
-    def __init__(self, guild: discord.Guild):
-        self.guild = guild
+    def __init__(self, guild_id: int):
+        self.guild_id: int = guild_id
         self.players: Dict[int, player.Player] = {}
-        for p in guild.members:
-            if global_data.players.get(p.id) is not None:
-                self.players[p.id] = global_data.players.get(p.id)
+
 
     def to_dict(self):
-        # Convert instance attributes to a dictionary
         return {
-            "guild_id": self.guild.id,
-            "players": {str(player_id): player_data.to_dict() for player_id, player_data in self.players.items()}
+            "guild_id": self.guild_id,
+            "players": {str(player_id): player.to_dict() for player_id, player in self.players.items()}
         }
 
     @classmethod
-    def from_dict(cls, guild, data):
-        # Create a new Server instance from a dictionary
+    def from_dict(cls, data):
+        # Fetch guild object from cache or None if not found
+        guild = discord.utils.get(discord.client.guilds, id=data['guild_id'])
+        if guild is None:
+            # If guild not found, create a new Guild object
+            guild = discord.Guild(id=data['guild_id'])
+
         server = cls(guild)
-        server.players = {int(player_id): player.Player.from_dict(player_data) for player_id, player_data in data.get("players", {}).items()}
+        for player_id, player_data in data['players'].items():
+            p = player.Player.from_dict(player_data)
+            server.add_player(p)
         return server
