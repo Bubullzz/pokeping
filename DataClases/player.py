@@ -14,6 +14,25 @@ class Player:
             self.enable_categories[i] = all
             self.bw_per_cat[i] = set()
 
+    def to_dict(self):
+        # Convert instance attributes to a dictionary
+        return {
+            'user_id': self.user.id,
+            'enable_categories': self.enable_categories,
+            'bw_per_cat': {key: list(value) for key, value in self.bw_per_cat.items()},
+            'guild_to_chans': {key: [chan.id for chan in value] for key, value in self.guild_to_chans.items()}
+        }
+
+    @classmethod
+    def from_dict(cls, user, data):
+        # Create a new Player instance from a dictionary
+        player = cls(user)
+        player.enable_categories = data['enable_categories']
+        player.bw_per_cat = {key: set(value) for key, value in data['bw_per_cat'].items()}
+        player.guild_to_chans = {key: {discord.TextChannel(id=chan_id) for chan_id in value} for key, value in data['guild_to_chans'].items()}
+        return player
+
+
     def interested(self, pkmn_id: int, interaction: discord.Interaction) -> bool:
         category = data.get_category(pkmn_id)
 

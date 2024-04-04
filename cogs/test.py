@@ -70,6 +70,7 @@ class test(commands.Cog):
     @report.autocomplete("pkmn_name")
     async def report_autocompletion(self, interaction: discord, current: str) -> List[
         app_commands.Choice[str]]:
+        print("start")
         ret = []
         i = 0
         for name in data.pkmn_names:
@@ -78,6 +79,7 @@ class test(commands.Cog):
                 i += 1
                 if i == 24:
                     return ret
+        print("end")
         return ret
 
     @enable.autocomplete("target")
@@ -91,6 +93,8 @@ class test(commands.Cog):
                 i += 1
                 if i == 24:
                     return ret
+        if (current == "all"):
+            return [app_commands.Choice(name="all", value="all")]
         return ret
 
     @disable.autocomplete("target")
@@ -104,6 +108,8 @@ class test(commands.Cog):
                 i += 1
                 if i == 24:
                     return ret
+        if (current == "all"):
+            return [app_commands.Choice(name="all", value="all")]
         return ret
 
 
