@@ -131,7 +131,6 @@ class test(commands.Cog):
             await interaction.response.send_message(f"Player not registred !")
             return
         p = global_data.servers[interaction.guild.id].players[interaction.user.id]
-        print(data.random_client.get_guild(interaction.guild.id))
         await interaction.response.send_message(f"Here are your preferences :\n" + p.list_preferences(interaction))
 
 async def setup(bot: commands.Bot) -> None:
