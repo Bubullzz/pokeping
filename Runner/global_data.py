@@ -15,5 +15,3 @@ for server_id, server_data in servers_data.items():
         s.players[int(player_id)] = player_obj
 
     servers[int(server_id)] = s
-
-print(servers[1184858846397734952].to_dict())

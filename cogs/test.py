@@ -20,7 +20,7 @@ class test(commands.Cog):
         pkmn_name = pkmn_name.lower()
         pkmn_id = data.get_id(pkmn_name)
         if interaction.guild.id in global_data.servers:
-            big_ass_string = ''.join([p.mention for p in global_data.servers[interaction.guild.id].players.values() if
+            big_ass_string = ''.join([p.mention + ' ' for p in global_data.servers[interaction.guild.id].players.values() if
                                       p.interested(pkmn_id, interaction)])
             await interaction.response.send_message(f"A wild {pkmn_name} has spawned ! {big_ass_string}")
         else:
@@ -39,21 +39,27 @@ class test(commands.Cog):
     async def xable(self, interaction: discord, argument: str, enable: bool) -> None:
         pretty_arg = argument
         argument = argument.lower()
+        changed = False
         if interaction.guild.id not in global_data.servers:  # Check if server not already exists
             global_data.servers[interaction.guild.id] = server.Server(interaction.guild.id)
+            changed = True
+
         serv = global_data.servers[interaction.guild.id]
 
         if interaction.user.id not in serv.players:  # Check if player exists in server
             serv.players[interaction.user.id] = player.Player(interaction.user.id, interaction.user.mention, not enable)
+            changed = True
 
         play = serv.players[interaction.user.id]
         if interaction.guild.id not in play.guild_to_chans.keys():  # Check if player know this server
             play.guild_to_chans[serv.guild_id] = set()
+            changed = True
 
         if interaction.channel not in play.guild_to_chans[serv.guild_id]:  # Add current channel if needed
             play.guild_to_chans[serv.guild_id].add(interaction.channel.id)
+            changed = True
 
-        if play.set_preference(argument, enable):
+        if play.set_preference(argument, enable) or changed:
             await interaction.response.send_message(f"Changed your preference for {pretty_arg} !")
         else:
             await interaction.response.send_message(f"Your preference for {pretty_arg} was already set that way !")
