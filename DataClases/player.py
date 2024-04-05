@@ -43,6 +43,26 @@ class Player:
         else:
             return pkmn_id in self.bw_per_cat.get(category)
 
+    def list_preferences(self, interaction: discord.Interaction):
+        guild_id = interaction.guild.id
+        s = ""
+        s += "\tEnabled Categories :\n"
+        for cat_id, status in self.enable_categories.items():
+            status_str = "ALL" if status else "NONE"
+            end = ""
+            if self.bw_per_cat[cat_id]:
+                bw_str = [data.id_to_pretty[pkmn_id] + ', ' for pkmn_id in self.bw_per_cat[cat_id]]
+                end = " except for: " + ''.join(bw_str)[:-2]
+            s += '\t\t' + status_str + " in " + data.category_names[cat_id] + end + '\n'
+
+        if any(self.guild_to_chans[guild_id]):
+            s += "\tYou are currently getting pinged in:\n"
+            for chan in self.guild_to_chans[guild_id]:
+                s += "\t\t" + interaction.guild.get_channel(chan).mention + '\n'
+        else:
+            s += "\tYou are currently not getting pinged in any channel.\n"
+        return s
+
     def set_preference(self, argument: str, enable: bool) -> bool:
         changed = False
         if argument == 'all':

@@ -26,8 +26,8 @@ class test(commands.Cog):
         else:
             await interaction.response.send_message(f"Server not registred !")
 
-    @app_commands.command(name="disable_channel", description="stop getting pings from this channel")
-    async def disable_chan(selfself, interaction: discord.Interaction) -> None:
+    @app_commands.command(name="stop_ping_here", description="stop getting pings from this channel")
+    async def stop_ping_here(selfself, interaction: discord.Interaction) -> None:
         try:
             serv = global_data.servers[interaction.guild.id]
             serv.players[interaction.user.id].guild_to_chans[serv.guild_id].remove(interaction.channel.id)
@@ -35,6 +35,22 @@ class test(commands.Cog):
             return
         except:
             await interaction.response.send_message(f"Looks like you are already not getting any ping from this channel >:(")
+
+    @app_commands.command(name="ping_me_here", description="start getting pings from this channel")
+    async def ping_me_here(selfself, interaction: discord.Interaction) -> None:
+        if interaction.guild.id not in global_data.servers:  # Check if server not already exists
+            global_data.servers[interaction.guild.id] = server.Server(interaction.guild.id)
+        serv = global_data.servers[interaction.guild.id]
+        if interaction.user.id not in serv.players:  # Check if player exists in server
+            serv.players[interaction.user.id] = player.Player(interaction.user.id, interaction.user.mention, True)
+        play = serv.players[interaction.user.id]
+        if interaction.guild.id not in play.guild_to_chans.keys():  # Check if player know this server
+            play.guild_to_chans[serv.guild_id] = set()
+        if interaction.channel.id not in play.guild_to_chans[serv.guild_id]:  # Add current channel if needed
+            play.guild_to_chans[serv.guild_id].add(interaction.channel.id)
+            await interaction.response.send_message(f"You will now receive pings in this channel !")
+        else:
+            await interaction.response.send_message(f"Looks like you are already getting pings from this channel >:(")
 
     async def xable(self, interaction: discord, argument: str, enable: bool) -> None:
         pretty_arg = argument
@@ -55,7 +71,7 @@ class test(commands.Cog):
             play.guild_to_chans[serv.guild_id] = set()
             changed = True
 
-        if interaction.channel not in play.guild_to_chans[serv.guild_id]:  # Add current channel if needed
+        if interaction.channel.id not in play.guild_to_chans[serv.guild_id]:  # Add current channel if needed
             play.guild_to_chans[serv.guild_id].add(interaction.channel.id)
             changed = True
 
@@ -106,6 +122,17 @@ class test(commands.Cog):
             return [app_commands.Choice(name="all", value="all")]
         return ret
 
+    @app_commands.command(name="list_preferences", description="see what your preferences are set to")
+    async def list_preferences(self, interaction: discord.Interaction) -> None:
+        if interaction.guild.id not in global_data.servers:
+            await interaction.response.send_message(f"Server not registred !")
+            return
+        if interaction.user.id not in global_data.servers[interaction.guild.id].players:
+            await interaction.response.send_message(f"Player not registred !")
+            return
+        p = global_data.servers[interaction.guild.id].players[interaction.user.id]
+        print(data.random_client.get_guild(interaction.guild.id))
+        await interaction.response.send_message(f"Here are your preferences :\n" + p.list_preferences(interaction))
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(test(bot))

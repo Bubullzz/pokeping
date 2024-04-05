@@ -4,6 +4,7 @@ from typing import List, Dict
 pkmn_names: List[str] = [name for name in parser.name_to_id.keys()]
 category_names = parser.category_names
 pretty_to_id = parser.name_to_id
+id_to_pretty: Dict[int, str] = {i: pokemon for pokemon, i in pretty_to_id.items()}
 lower_to_id = {key.lower(): value for key, value in pretty_to_id.items()}
 id_to_lower: Dict[int, str] = {i: pokemon for pokemon, i in lower_to_id.items()}
 
