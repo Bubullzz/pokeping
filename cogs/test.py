@@ -18,7 +18,9 @@ class test(commands.Cog):
         if interaction.guild.id in global_data.servers:
             big_ass_string = ''.join([p.mention + ' ' for p in global_data.servers[interaction.guild.id].players.values() if
                                       p.interested(pkmn_id, interaction)])
-            message = await interaction.channel.send(f"A wild {pkmn_name} has spawned ! {big_ass_string}")
+            await interaction.response.send_message(f"A wild {pkmn_name} has spawned ! {big_ass_string}")
+            message = await interaction.original_response()
+            print(message)
             await message.add_reaction('✅')
             await message.add_reaction('❌')
             await message.add_reaction('⌚')
