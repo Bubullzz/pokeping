@@ -11,10 +11,6 @@ class test(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="bonssse", description="soirsoir")
-    async def bonsoir15(self, interaction: discord.Interaction, name: str) -> None:
-        await interaction.response.send_message(f"Bonsoir {name}")
-
     @app_commands.command(name="report", description="reports a raid")
     async def report(self, interaction: discord.Interaction, pkmn_name: str) -> None:
         pkmn_name = pkmn_name.lower()
@@ -22,7 +18,10 @@ class test(commands.Cog):
         if interaction.guild.id in global_data.servers:
             big_ass_string = ''.join([p.mention + ' ' for p in global_data.servers[interaction.guild.id].players.values() if
                                       p.interested(pkmn_id, interaction)])
-            await interaction.response.send_message(f"A wild {pkmn_name} has spawned ! {big_ass_string}")
+            message = await interaction.channel.send(f"A wild {pkmn_name} has spawned ! {big_ass_string}")
+            await message.add_reaction('✅')
+            await message.add_reaction('❌')
+            await message.add_reaction('⌚')
         else:
             await interaction.response.send_message(f"Server not registred !")
 
